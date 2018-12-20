@@ -1,0 +1,25 @@
+{
+  "name": "BladeIron_CLI",
+  "version": "1.0.0",
+  "description": "",
+  "main": "console.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elevenbuckets/BladeIron_CLI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elevenbuckets/BladeIron_CLI/issues"
+  },
+  "homepage": "https://github.com/elevenbuckets/BladeIron_CLI#readme",
+  "dependencies": {
+    "bladeiron_api": "git+ssh://git@github.com/elevenbuckets/bladeiron_api.git",
+    "figlet": "^1.2.1",
+    "rpc-websockets": "^4.3.5"
+  }
+}
