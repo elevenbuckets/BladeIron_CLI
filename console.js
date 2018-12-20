@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 
 const path = require('path');
@@ -31,8 +32,8 @@ const bladeWorker = (rootcfg) =>
 	
 	console.log(`DEBUG: __load_app = ${__load_app}`);
 	if (__load_app !== '11be') { // FIXME: better app folder structure needed.
-		BIApi = require('./' + __load_app + '.js');
-		appOpts = require('./' + __load_app + '.json');
+		BIApi = require(path.join(process.env.PWD, __load_app + '.js'));
+                appOpts = require(path.join(process.env.PWD, __load_app + '.json'));
 		if (appOpts.appName == 'be') throw "Invalid App Name which uses preserved words";
 	} else {
 		BIApi = require('bladeiron_api');
