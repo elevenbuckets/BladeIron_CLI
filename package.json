@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/elevenbuckets/BladeIron_CLI#readme",
   "dependencies": {
+    "BladeIron": "git+ssh://git@github.com/elevenbuckets/BladeIron.git",
     "bladeiron_api": "git+ssh://git@github.com/elevenbuckets/bladeiron_api.git",
     "figlet": "^1.2.1",
     "rpc-websockets": "^4.3.5"
