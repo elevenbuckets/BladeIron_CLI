@@ -48,6 +48,7 @@ const bladeWorker = (rootcfg) =>
 		}
 	}
 
+	output.cfgObjs = {...output.cfgObjs, appOpts};
 	output[appOpts.appName] = new BIApi(rpcport, rpchost, appOpts);
 
 	return output;
@@ -96,13 +97,13 @@ if (rootcfg.configDir !== '') {
 	if (cluster.isMaster) {
 		let slogan = "11BE Dev Console";
 		app = bladeWorker(rootcfg);
-		appName = Object.keys(app).filter((e) => { return e !== 'cfgObjs'})[0];
+		appName = app.cfgObjs.appOpts.appName;
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
 		if (appName !== 'be') {
 			stage = stage.then(() => { return app[appName].init(); });
 			slogan = appName;
-			if (typeof(appOpts.account) !== 'undefined') {
+			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
 				const rl = readline.createInterface({
 					input: process.stdin,
 					output: process.stdout
@@ -110,8 +111,13 @@ if (rootcfg.configDir !== '') {
 
 				rl.question('Master Password:', (answer) => {
   					rl.close();
-					let result = app[appName].client.call('unlock', [answer]);
-					if (!result) throw "Warning: wrong password";
+					app[appName].client.call('unlock', [answer]).then((rc) => 
+					{
+						if (!rc.result) {
+							console.log("Warning: wrong password");
+							process.exit(1);
+						}
+					})
 				});
 	
 			} 
