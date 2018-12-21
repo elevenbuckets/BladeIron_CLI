@@ -85,6 +85,24 @@ const initBIServer = (rootcfg) => {
 	return cluster.fork({rpcport, rpchost});
 }
 
+const askMasterPass = (resolve, reject) => 
+{
+	const rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout
+	});
+
+	try {
+		rl.question('Master Password:', (answer) => {
+  			rl.close();
+			resolve(answer);
+		});
+		rl._writeToOutput = (stringToWrite) => { rl.output.write("*"); };
+	} catch(err) {
+		reject(err);
+	}
+}
+
 // Main
 cluster.setupMaster({exec: require.resolve('BladeIron/index.js')}); //BladeIron RPCServ
 
@@ -101,26 +119,28 @@ if (rootcfg.configDir !== '') {
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
 		if (appName !== 'be') {
-			stage = stage.then(() => { return app[appName].init(); });
 			slogan = appName;
 			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-				const rl = readline.createInterface({
-					input: process.stdin,
-					output: process.stdout
-				});
-
-				rl.question('Master Password:', (answer) => {
-  					rl.close();
-					app[appName].client.call('unlock', [answer]).then((rc) => 
+				stage = stage.then(() => { return new Promise(askMasterPass); });
+				stage = stage.then((answer) => { 
+					return app[appName].client.call('unlock', [answer]).then((rc) => 
 					{
-						if (!rc.result) {
+						if (!rc) {
 							console.log("Warning: wrong password");
 							process.exit(1);
 						}
+					}).then(() => {
+						return app[appName].init(); 
 					})
 				});
-	
+			} else {
+				console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
+				stage = stage.then(() => { 
+					return app[appName].init(); 
+				});
 			} 
+		} else {
+			console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
 		}
 		stage = stage.then(() => 
 		{  
