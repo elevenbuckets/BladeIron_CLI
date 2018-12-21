@@ -118,6 +118,7 @@ if (rootcfg.configDir !== '') {
 		appName = app.cfgObjs.appOpts.appName;
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
+
 		if (appName !== 'be') {
 			slogan = appName;
 			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
@@ -130,6 +131,7 @@ if (rootcfg.configDir !== '') {
 							process.exit(1);
 						}
 					}).then(() => {
+						app[appName].linkAccount(app.cfgObjs.appOpts.account);
 						return app[appName].init(); 
 					})
 				});
@@ -142,6 +144,7 @@ if (rootcfg.configDir !== '') {
 		} else {
 			console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
 		}
+
 		stage = stage.then(() => 
 		{  
 			 return ASCII_Art(slogan).then((art) => {
