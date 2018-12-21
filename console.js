@@ -8,6 +8,7 @@ const cluster = require('cluster');
 const WSClient = require('rpc-websockets').Client;
 const repl = require('repl');
 const figlet = require('figlet');
+const readline = require('readline');
 
 // App or 11BE base
 const __load_app = process.argv.length === 3 ? process.argv[2] : '11be';
@@ -30,7 +31,7 @@ const bladeWorker = (rootcfg) =>
 	let BIApi;
 	let appOpts
 	
-	console.log(`DEBUG: __load_app = ${__load_app}`);
+	//console.log(`DEBUG: __load_app = ${__load_app}`);
 	if (__load_app !== '11be') { // FIXME: better app folder structure needed.
                 BIApi = require(path.join(process.env.PWD, 'dapps', __load_app, __load_app + '.js'));
                 appOpts = require(path.join(process.env.PWD, 'dapps', __load_app, __load_app + '.json'));
@@ -101,6 +102,19 @@ if (rootcfg.configDir !== '') {
 		if (appName !== 'be') {
 			stage = stage.then(() => { return app[appName].init(); });
 			slogan = appName;
+			if (typeof(appOpts.account) !== 'undefined') {
+				const rl = readline.createInterface({
+					input: process.stdin,
+					output: process.stdout
+				});
+
+				rl.question('Master Password:', (answer) => {
+  					rl.close();
+					let result = app[appName].client.call('unlock', [answer]);
+					if (!result) throw "Warning: wrong password";
+				});
+	
+			} 
 		}
 		stage = stage.then(() => 
 		{  
