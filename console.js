@@ -89,15 +89,17 @@ const askMasterPass = (resolve, reject) =>
 {
 	const rl = readline.createInterface({
 		input: process.stdin,
-		output: process.stdout
+		output: process.stdout,
+		terminal: true
 	});
-
 	try {
-		rl.question('Master Password:', (answer) => {
-  			rl.close();
-			resolve(answer);
-		});
-		rl._writeToOutput = (stringToWrite) => { rl.output.write("*"); };
+                rl.question('Master Password:', (answer) => {
+                        rl.close();
+                        resolve(answer);
+                });
+                rl._writeToOutput = (stringToWrite) => { 
+			rl.output.write("*"); 
+		};
 	} catch(err) {
 		reject(err);
 	}
