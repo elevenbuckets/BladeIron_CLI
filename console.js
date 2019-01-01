@@ -87,6 +87,7 @@ const initBIServer = (rootcfg) => {
 
 const askMasterPass = (resolve, reject) => 
 {
+	let pslen = 0;
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout,
@@ -97,8 +98,21 @@ const askMasterPass = (resolve, reject) =>
                         rl.close();
                         resolve(answer);
                 });
-                rl._writeToOutput = (stringToWrite) => { 
-			rl.output.write("*"); 
+                rl._writeToOutput = (stringToWrite) => {
+			//console.log(stringToWrite.charCodeAt(0));
+			if (stringToWrite.charCodeAt(0) === 13) { 
+				rl.output.write("\n");
+			} else if (stringToWrite.charCodeAt(0) === 77 || stringToWrite.charCodeAt(0) === '') {
+				if (pslen > 0) {
+					pslen--;
+					rl.output.write("Master Password:" + '*'.repeat(pslen));
+				} else {
+					rl.output.write("Master Password:");
+				}
+			} else {
+				pslen++;
+				rl.output.write("*"); 
+			}
 		};
 	} catch(err) {
 		reject(err);
