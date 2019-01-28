@@ -149,7 +149,8 @@ if (rootcfg.configDir !== '') {
 						}
 					}).then(() => {
 						app[appName].linkAccount(app.cfgObjs.appOpts.account);
-						return app[appName].init(); 
+						let condType = app.cfgObjs.appOpts.condType || 'Sanity';
+						return app[appName].init(condType); 
 					})
 				});
 			} else {
