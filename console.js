@@ -45,7 +45,8 @@ const bladeWorker = (rootcfg) =>
 	                "conditionDir": __dirname,
 	                "contracts": [],
 	                "networkID": gethcfg.networkID,
-	                "version": "1.0" 
+	                "version": "1.0",
+			"serverOnly": true  // to re-enable basic 11BE dev console, remove this key or turn it into false
 		}
 	}
 
@@ -133,6 +134,19 @@ if (rootcfg.configDir !== '') {
 		let slogan = "11BE Dev Console";
 		app = bladeWorker(rootcfg);
 		appName = app.cfgObjs.appOpts.appName;
+
+		if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
+			 return ASCII_Art('11BE: BladeIron Service').then((art) => {
+		          		console.log(art);
+					r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
+					r.context = {app};
+				       	r.on('exit', () => {
+				       		console.log("\n\t" + 'Stopping Services...');
+						worker.kill('SIGINT');
+				       	});
+		       		});
+		}
+
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
 
