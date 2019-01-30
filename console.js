@@ -181,13 +181,17 @@ if (rootcfg.configDir !== '') {
 		{  
 			 return ASCII_Art(slogan).then((art) => {
 		          		console.log(art);
-					r = repl.start({ prompt: `[-= ${slogan} =-]$ `, eval: replEvalPromise });
-					r.context = {app};
-				       	r.on('exit', () => {
-				       		console.log("\n\t" + 'Stopping CLI...');
-						app[appName].client.close();
-						worker.kill('SIGINT');
-				       	});
+					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && app.cfgObjs.appOpts.autoGUI === true) {
+						app[appName].launchGUI();
+					} else {
+						r = repl.start({ prompt: `[-= ${slogan} =-]$ `, eval: replEvalPromise });
+						r.context = {app};
+					       	r.on('exit', () => {
+					       		console.log("\n\t" + 'Stopping CLI...');
+							app[appName].client.close();
+							worker.kill('SIGINT');
+					       	});
+					}
 		       		});
 		});
 	}
