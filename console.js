@@ -126,7 +126,7 @@ cluster.setupMaster({exec: require.resolve('BladeIron/index.js')}); //BladeIron 
 
 let rootcfg = loadConfig(path.join(".local","bootstrap_config.json"));
 let stage   = Promise.resolve();
-let worker  = initBIServer(rootcfg); 
+let worker  = __load_app === '11be' ? initBIServer(rootcfg) : {}; 
 let app, r, appName;
 
 if (rootcfg.configDir !== '') {
@@ -153,7 +153,7 @@ if (rootcfg.configDir !== '') {
 		if (appName !== 'be') {
 			slogan = appName;
 			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-				stage = stage.then(() => { return new Promise(askMasterPass); });
+				stage = stage.then(() => { return new Promise(askMasterPass).catch((err) => { process.exit(1); }) });
 				stage = stage.then((answer) => { 
 					return app[appName].client.call('unlock', [answer]).then((rc) => 
 					{
@@ -182,6 +182,7 @@ if (rootcfg.configDir !== '') {
 			 return ASCII_Art(slogan).then((art) => {
 		          		console.log(art);
 					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && app.cfgObjs.appOpts.autoGUI === true) {
+						app[appName].client.close();
 						app[appName].launchGUI();
 					} else {
 						r = repl.start({ prompt: `[-= ${slogan} =-]$ `, eval: replEvalPromise });
@@ -189,7 +190,6 @@ if (rootcfg.configDir !== '') {
 					       	r.on('exit', () => {
 					       		console.log("\n\t" + 'Stopping CLI...');
 							app[appName].client.close();
-							worker.kill('SIGINT');
 					       	});
 					}
 		       		});
