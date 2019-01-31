@@ -12,7 +12,7 @@ const readline = require('readline');
 
 // App or 11BE base
 const __load_app = process.argv.length >= 3 ? process.argv[2] : '11be';
-const __use_account = (process.argv.length === 5 && process.argv[3] == '--account') ? process.argv[4] : null;
+const __rt_opts  = process.argv.length === 4 ? process.argv[3].split(',').map((o) => { let kv = o.split(':'); return {[kv[0]]: kv[1]} }) : [{}];
 
 const loadConfig = (path) =>
 {
@@ -38,6 +38,7 @@ const bladeWorker = (rootcfg) =>
                 BIApi = require(path.join(process.env.PWD, 'dapps', __load_app, __load_app + '.js'));
                 appOpts = require(path.join(process.env.PWD, 'dapps', __load_app, __load_app + '.json'));
 		if (appOpts.appName == 'be') throw "Invalid App Name which uses preserved words";
+		__rt_opts.map((i) => { appOpts = { ...appOpts, ...i }})
 	} else {
 		BIApi = require('bladeiron_api');
 		appOpts = {
@@ -153,7 +154,7 @@ if (rootcfg.configDir !== '') {
 
 		if (appName !== 'be') {
 			slogan = appName;
-			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined' || __use_account !== null) {
+			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
 				stage = stage.then(() => { return new Promise(askMasterPass).catch((err) => { process.exit(1); }) });
 				stage = stage.then((answer) => { 
 					return app[appName].client.call('unlock', [answer]).then((rc) => 
@@ -163,7 +164,6 @@ if (rootcfg.configDir !== '') {
 							process.exit(1);
 						}
 					}).then(() => {
-						if (__use_account !== null) app.cfgObjs.appOpts.account = __use_account;
 						app[appName].linkAccount(app.cfgObjs.appOpts.account);
 						let condType = app.cfgObjs.appOpts.condType || 'Sanity';
 						return app[appName].init(condType); 
