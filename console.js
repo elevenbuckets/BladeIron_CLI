@@ -11,7 +11,7 @@ const figlet = require('figlet');
 const readline = require('readline');
 
 // App or 11BE base
-const __load_app = process.argv.length === 3 ? process.argv[2] : '11be';
+const __load_app = process.argv.length >= 3 ? process.argv[2] : '11be';
 const __use_account = (process.argv.length === 5 && process.argv[3] == '--account') ? process.argv[4] : null;
 
 const loadConfig = (path) =>
