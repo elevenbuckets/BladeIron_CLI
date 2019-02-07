@@ -39,7 +39,7 @@ const bladeWorker = (rootcfg) =>
                 appOpts = require(path.join(process.env.PWD, 'dapps', __load_app, __load_app + '.json'));
 		if (appOpts.appName == 'be') throw "Invalid App Name which uses preserved words";
 		__rt_opts.map((i) => { appOpts = { ...appOpts, ...i }})
-		appOpts[topDir] = rootcfg.configDir;
+		appOpts['topDir'] = rootcfg.configDir;
 	} else {
 		BIApi = require('bladeiron_api');
 		appOpts = {
