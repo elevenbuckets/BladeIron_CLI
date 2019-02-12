@@ -27,7 +27,7 @@ const bladeWorker = (rootcfg) =>
         let tk20cfg = rootcfg.configDir !== '' ? loadConfig(path.join(rootcfg.configDir, 'Tokens.json')) : {};
         let cfgObjs = {geth: {...gethcfg, Tokens: tk20cfg}, ipfs: ipfscfg};
         let rpcport = gethcfg.rpcport || 3000;
-        let rpchost = gethcfg.rpchost || '127.0.0.1';
+        let rpchost = gethcfg.rpchost || process.env.rpchost || '127.0.0.1';
         //let wsrpc   = new WSClient('ws://' + rpchost + ':' + rpcport);
 	let output  = {cfgObjs};
 	let BIApi;
