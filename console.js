@@ -198,5 +198,24 @@ if (rootcfg.configDir !== '') {
 		});
 	}
 } else {
-	throw "Please setup bootstrap config first ..."; 
+	if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
+		return ASCII_Art('11BE: BladeIron Service').then((art) => {
+	          		console.log(art);
+				r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
+				r.context = {app};
+			       	r.on('exit', () => {
+			       		console.log("\n\t" + 'Stopping Services...');
+					worker.kill('SIGINT');
+			       	});
+	       		});
+	} else {
+		const { exec } = require('child_process');
+		exec('./node_modules/.bin/bladecli ControlPanel initsetup:true', 
+		{
+			cwd: path.join(process.env.PWD), 
+			env: {DISPLAY: process.env.DISPLAY, XAUTHORITY: process.env.XAUTHORITY,  PATH: process.env.PATH} 
+		});
+	}
+	// should never reached here ...
+	throw "Something when very wrong ..."; 
 }
