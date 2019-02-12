@@ -132,52 +132,49 @@ let worker  = __load_app === '11be' ? initBIServer(rootcfg) : {};
 let app, r, appName;
 
 if (cluster.isMaster) {
-	if (rootcfg.configDir !== '') {
-		let slogan = "11BE Dev Console";
-		app = bladeWorker(rootcfg);
-		appName = app.cfgObjs.appOpts.appName;
+	let slogan = "11BE Dev Console";
+	app = bladeWorker(rootcfg);
+	appName = app.cfgObjs.appOpts.appName;
 
-		if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
-			 return ASCII_Art('11BE: BladeIron Service').then((art) => {
-		          		console.log(art);
-					r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
-					r.context = {app};
-				       	r.on('exit', () => {
-				       		console.log("\n\t" + 'Stopping Services...');
-						worker.kill('SIGINT');
-				       	});
-		       		});
-		}
+	if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
+		 return ASCII_Art('11BE: BladeIron Service').then((art) => {
+	          		console.log(art);
+				r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
+				r.context = {app};
+			       	r.on('exit', () => {
+			       		console.log("\n\t" + 'Stopping Services...');
+					worker.kill('SIGINT');
+			       	});
+	       		});
+	}
 
+	// the following are for appName !== 'be'
+	if (rootcfg.configDir !== '' || (appName === 'ControlPanel' && app.cfgObjs.appOpts.initSetup === 'true') ) {
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
 
-		if (appName !== 'be') {
-			slogan = appName;
-			if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-				stage = stage.then(() => { return new Promise(askMasterPass).catch((err) => { process.exit(1); }) });
-				stage = stage.then((answer) => { 
-					return app[appName].client.call('unlock', [answer]).then((rc) => 
-					{
-						if (!rc) {
-							console.log("Warning: wrong password");
-							process.exit(1);
-						}
-					}).then(() => {
-						app[appName].linkAccount(app.cfgObjs.appOpts.account);
-						let condType = app.cfgObjs.appOpts.condType || 'Sanity';
-						return app[appName].init(condType); 
-					})
-				});
-			} else {
-				console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
-				stage = stage.then(() => { 
-					return app[appName].init(); 
-				});
-			} 
+		slogan = appName;
+		if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
+			stage = stage.then(() => { return new Promise(askMasterPass).catch((err) => { process.exit(1); }) });
+			stage = stage.then((answer) => { 
+				return app[appName].client.call('unlock', [answer]).then((rc) => 
+				{
+					if (!rc) {
+						console.log("Warning: wrong password");
+						process.exit(1);
+					}
+				}).then(() => {
+					app[appName].linkAccount(app.cfgObjs.appOpts.account);
+					let condType = app.cfgObjs.appOpts.condType || 'Sanity';
+					return app[appName].init(condType); 
+				})
+			});
 		} else {
 			console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
-		}
+			stage = stage.then(() => { 
+				return app[appName].init(); 
+			});
+		} 
 
 		stage = stage.then(() => 
 		{  
@@ -197,17 +194,12 @@ if (cluster.isMaster) {
 		       		});
 		});
 	} else {
-		if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
-			return ASCII_Art('11BE: BladeIron Service').then((art) => {
-	          			console.log(art);
-					r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
-					r.context = {app};
-				       	r.on('exit', () => {
-				       		console.log("\n\t" + 'Stopping Services...');
-						worker.kill('SIGINT');
-			       		});
-	       			});
-		}
-		throw "Something when very wrong ..."; 
+		// trigger 11BE ControlPanel setup page
+		const { exec } = require('child_process'); 
+		exec('./node_modules/.bin/bladecli ControlPanel initSetup:true', 
+		{
+			cwd: path.join(process.env.PWD), 
+			env: {DISPLAY: process.env.DISPLAY, XAUTHORITY: process.env.XAUTHORITY,  PATH: process.env.PATH} 
+		});
 	}
 }
