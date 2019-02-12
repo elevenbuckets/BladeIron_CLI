@@ -131,8 +131,8 @@ let stage   = Promise.resolve();
 let worker  = __load_app === '11be' ? initBIServer(rootcfg) : {}; 
 let app, r, appName;
 
-if (rootcfg.configDir !== '') {
-	if (cluster.isMaster) {
+if (cluster.isMaster) {
+	if (rootcfg.configDir !== '') {
 		let slogan = "11BE Dev Console";
 		app = bladeWorker(rootcfg);
 		appName = app.cfgObjs.appOpts.appName;
@@ -196,26 +196,18 @@ if (rootcfg.configDir !== '') {
 					}
 		       		});
 		});
-	}
-} else {
-	if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
-		return ASCII_Art('11BE: BladeIron Service').then((art) => {
-	          		console.log(art);
-				r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
-				r.context = {app};
-			       	r.on('exit', () => {
-			       		console.log("\n\t" + 'Stopping Services...');
-					worker.kill('SIGINT');
-			       	});
-	       		});
 	} else {
-		const { exec } = require('child_process');
-		exec('./node_modules/.bin/bladecli ControlPanel initsetup:true', 
-		{
-			cwd: path.join(process.env.PWD), 
-			env: {DISPLAY: process.env.DISPLAY, XAUTHORITY: process.env.XAUTHORITY,  PATH: process.env.PATH} 
-		});
+		if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
+			return ASCII_Art('11BE: BladeIron Service').then((art) => {
+	          			console.log(art);
+					r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
+					r.context = {app};
+				       	r.on('exit', () => {
+				       		console.log("\n\t" + 'Stopping Services...');
+						worker.kill('SIGINT');
+			       		});
+	       			});
+		}
+		throw "Something when very wrong ..."; 
 	}
-	// should never reached here ...
-	throw "Something when very wrong ..."; 
 }
