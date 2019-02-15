@@ -160,8 +160,8 @@ if (cluster.isMaster) {
 	}
 
 	// the following are for appName !== 'be'
-	if (rootcfg.configDir !== '' || (appName === 'ControlPanel' && toBool(app.cfgObjs.appOpts.initSetup) === true) ) {
-		if (appName === 'ControlPanel' && toBool(app.cfgObjs.appOpts.initSetup) === true) return app[appName].launchGUI();
+	if (rootcfg.configDir !== '' || (appName === 'ControlPanel' && "initSetup" in app.cfgObjs.appOpts && toBool(app.cfgObjs.appOpts.initSetup) === true) ) {
+		if (appName === 'ControlPanel' && "initSetup" in app.cfgObjs.appOpts && toBool(app.cfgObjs.appOpts.initSetup) === true) return app[appName].launchGUI();
 
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
