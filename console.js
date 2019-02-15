@@ -20,6 +20,17 @@ const loadConfig = (path) =>
         return JSON.parse(buffer.toString());
 }
 
+const toBool = (str) =>
+{
+        if (typeof(str) === 'boolean') return str;
+
+        if (str.toLowerCase() === 'true') {
+                return true
+        } else {
+                return false
+        }
+}
+
 const bladeWorker = (rootcfg) =>
 {
         let gethcfg = rootcfg.configDir !== '' ? loadConfig(path.join(rootcfg.configDir, 'config.json')) : {};
@@ -136,7 +147,7 @@ if (cluster.isMaster) {
 	app = bladeWorker(rootcfg);
 	appName = app.cfgObjs.appOpts.appName;
 
-	if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && app.cfgObjs.appOpts.serverOnly === true) {
+	if (appName === 'be' && typeof(app.cfgObjs.appOpts.serverOnly) !== 'undefined' && toBool(app.cfgObjs.appOpts.serverOnly) === true) {
 		 return ASCII_Art('11BE: BladeIron Service').then((art) => {
 	          		console.log(art);
 				r = repl.start({ prompt: ``, eval: () => { console.log(art) } });
@@ -149,15 +160,15 @@ if (cluster.isMaster) {
 	}
 
 	// the following are for appName !== 'be'
-	if (rootcfg.configDir !== '' || (appName === 'ControlPanel' && app.cfgObjs.appOpts.initSetup === 'true') ) {
-		if (appName === 'ControlPanel' && app.cfgObjs.appOpts.initSetup === 'true') return app[appName].launchGUI();
+	if (rootcfg.configDir !== '' || (appName === 'ControlPanel' && toBool(app.cfgObjs.appOpts.initSetup) === true) ) {
+		if (appName === 'ControlPanel' && toBool(app.cfgObjs.appOpts.initSetup) === true) return app[appName].launchGUI();
 
 		stage = stage.then(() => { return app[appName].connectRPC() });
 		stage = stage.then(() => { return app[appName].client.call('fully_initialize', app.cfgObjs); });
 
 		slogan = appName;
 		if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-			if (app.cfgObjs.appOpts.autoGUI == 'false') {
+			if (toBool(app.cfgObjs.appOpts.autoGUI) === false) {
 				stage = stage.then(() => { return app[appName].client.call('hasPass'); });
 				stage = stage.then((rc) => { 
 					if (!rc) {
@@ -191,7 +202,7 @@ if (cluster.isMaster) {
 		{  
 			 return ASCII_Art(slogan).then((art) => {
 		          		console.log(art);
-					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && app.cfgObjs.appOpts.autoGUI == true) {
+					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && toBool(app.cfgObjs.appOpts.autoGUI) === true) {
 						app[appName].client.close();
 						app[appName].launchGUI();
 					} else {
