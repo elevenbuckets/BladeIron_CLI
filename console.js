@@ -22,7 +22,9 @@ const loadConfig = (path) =>
 
 const toBool = (str) =>
 {
+        if (typeof(str) === 'undefined') return false;
         if (typeof(str) === 'boolean') return str;
+
 
         if (str.toLowerCase() === 'true') {
                 return true
