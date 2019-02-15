@@ -157,19 +157,28 @@ if (cluster.isMaster) {
 
 		slogan = appName;
 		if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-			stage = stage.then(() => { return new Promise(askMasterPass).catch((err) => { process.exit(1); }) });
-			stage = stage.then((answer) => { 
-				return app[appName].client.call('unlock', [answer]).then((rc) => 
-				{
+			if (app.cfgObjs.appOpts.autoGUI == 'false') {
+				stage = stage.then(() => { return app[appName].client.call('hasPass'); });
+				stage = stage.then((rc) => { 
 					if (!rc) {
-						console.log("Warning: wrong password");
-						process.exit(1);
+						return new Promise(askMasterPass)
+							.catch((err) => { process.exit(1); })
+							.then((answer) => {
+								return app[appName].client.call('unlock', [answer]).then(
+								(rc) => {
+									if (!rc) {
+										console.log("Warning: wrong password");
+										process.exit(1);
+									}
+								});
+							})
 					}
-				}).then(() => {
 					app[appName].linkAccount(app.cfgObjs.appOpts.account);
-					let condType = app.cfgObjs.appOpts.condType || 'Sanity';
-					return app[appName].init(condType); 
-				})
+				});
+			}
+			stage = stage.then(() => {
+				let condType = app.cfgObjs.appOpts.condType || 'Sanity';
+				return app[appName].init(condType); 
 			});
 		} else {
 			console.log(`Warning: Read-only mode, need to unlock master password to change state.`);
@@ -182,7 +191,7 @@ if (cluster.isMaster) {
 		{  
 			 return ASCII_Art(slogan).then((art) => {
 		          		console.log(art);
-					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && app.cfgObjs.appOpts.autoGUI === true) {
+					if (typeof(app.cfgObjs.appOpts.autoGUI) !== 'undefined' && app.cfgObjs.appOpts.autoGUI == true) {
 						app[appName].client.close();
 						app[appName].launchGUI();
 					} else {
