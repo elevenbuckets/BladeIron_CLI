@@ -171,7 +171,7 @@ if (cluster.isMaster) {
 
 		slogan = appName;
 		if (typeof(app.cfgObjs.appOpts.account) !== 'undefined') {
-			if (typeof(app.cfgObjs.appOpts.autoGUI) === 'undefined' && toBool(app.cfgObjs.appOpts.autoGUI) === false) {
+			if (typeof(app.cfgObjs.appOpts.autoGUI) === 'undefined' || toBool(app.cfgObjs.appOpts.autoGUI) === false) {
 				stage = stage.then(() => { return app[appName].client.call('hasPass'); });
 				stage = stage.then((rc) => { 
 					if (!rc) {
