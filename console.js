@@ -184,6 +184,7 @@ if (cluster.isMaster) {
 										console.log("Warning: wrong password");
 										process.exit(1);
 									}
+									app[appName].linkAccount(app.cfgObjs.appOpts.account);
 								});
 							})
 					}
