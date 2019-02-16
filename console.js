@@ -87,7 +87,8 @@ const ASCII_Art = (word) => {
 const replEvalPromise = (cmd,ctx,filename,cb) => {
   let result=eval(cmd);
   if (result instanceof Promise) {
-    return result.then(response=>cb(null,response));
+    return result.then(response=>cb(null,response))
+		 .catch((err) => { console.trace(err); cb(null,undefined) });
   }
   return cb(null, result);
 }
