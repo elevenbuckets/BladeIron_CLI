@@ -23,6 +23,10 @@
     "bladeiron_api": "https://github.com/elevenbuckets/bladeiron_api.git",
     "ethereumjs-utils": "^5.2.5",
     "figlet": "^1.2.1",
-    "rpc-websockets": "^4.3.5"
+    "rpc-websockets": "^4.3.5",
+    "ascii-table": "0.0.9",
+    "ipfs-http-client": "^29.1.1",
+    "ipfsd-ctl": "^0.42.0",
+    "merkle_tree": "git+ssh://git@github.com/elevenbuckets/merkle_tree.git"
   }
 }
