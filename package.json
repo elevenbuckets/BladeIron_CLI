@@ -20,13 +20,14 @@
   "homepage": "https://github.com/elevenbuckets/BladeIron_CLI#readme",
   "dependencies": {
     "BladeIron": "https://github.com/elevenbuckets/BladeIron.git",
+    "ascii-table": "0.0.9",
     "bladeiron_api": "https://github.com/elevenbuckets/bladeiron_api.git",
     "ethereumjs-utils": "^5.2.5",
     "figlet": "^1.2.1",
-    "rpc-websockets": "^4.3.5",
-    "ascii-table": "0.0.9",
+    "go-ipfs-dep": "^0.4.18",
     "ipfs-http-client": "^29.1.1",
     "ipfsd-ctl": "^0.42.0",
-    "merkle_tree": "git+ssh://git@github.com/elevenbuckets/merkle_tree.git"
+    "merkle_tree": "git+ssh://git@github.com/elevenbuckets/merkle_tree.git",
+    "rpc-websockets": "^4.3.5"
   }
 }
