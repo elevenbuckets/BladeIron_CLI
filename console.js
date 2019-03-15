@@ -9,7 +9,6 @@ const WSClient = require('rpc-websockets').Client;
 const repl = require('repl');
 const figlet = require('figlet');
 const readline = require('readline');
-const accMgr = require('accMgr');
 
 // App or 11BE base
 const __load_app = process.argv.length >= 3 ? process.argv[2] : '11be';
@@ -68,13 +67,6 @@ const bladeWorker = (rootcfg) =>
 
 	output.cfgObjs = {...output.cfgObjs, appOpts};
 	output[appOpts.appName] = new BIApi(rpcport, rpchost, appOpts);
-
-	// Infura related changes
-	if (typeof(appOpts.infura) !== 'undefined' && appOpts.infura) {
-		const Web3 = require('web3');
-		output[appOpts.appName]['accMgr'] = new accMgr(rootcfg.configDir);
-		output[appOpts.appName]['web3'] = new Web3(new Web3.providers.HttpProvider(appOpts.infura));
-	}
 
 	return output;
 }
