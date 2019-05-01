@@ -215,8 +215,8 @@ if (cluster.isMaster) {
 						r.context = {app};
 					       	r.on('exit', () => {
 					       		console.log("\n\t" + 'Stopping CLI...');
-							app[appName].ipfs_pubsub_topicList.map((t) => {
-								app[appName].ipfs_pubsub_unsubscribe(t);
+							app[appName].pubsub_topicList.map((t) => {
+								app[appName].pubsub_unsubscribe(t);
 							})
 							app[appName].client.close();
 					       	});
